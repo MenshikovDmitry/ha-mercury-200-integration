@@ -1,0 +1,10 @@
+{
+  "domain": "mercury200",
+  "name": "Mercury 200.02 integration.",
+  "documentation": "https://github.com/home-assistant/example-custom-config/tree/master/custom_components/mqtt_basic_async/",
+  "dependencies": ["mqtt"],
+  "codeowners": ["Dmitry Menshikov"],
+  "requirements": [],
+  "iot_class": "local_polling",
+  "version": "0.1.0"
+}

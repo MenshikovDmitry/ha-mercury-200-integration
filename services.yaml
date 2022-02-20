@@ -1,0 +1,9 @@
+submit_command:
+  description: Send command to RS-485 BUS
+  fields:
+    device_id:
+      description: Serial number of the Mercury200.02
+      example: "04023330"
+    command:
+      description: Request ID
+      example: "get_status"
