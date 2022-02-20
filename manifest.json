@@ -1,7 +1,7 @@
 {
   "domain": "mercury200",
   "name": "Mercury 200.02 integration.",
-  "documentation": "https://github.com/home-assistant/example-custom-config/tree/master/custom_components/mqtt_basic_async/",
+  "documentation": "https://github.com/MenshikovDmitry/ha-mercury-200-integration/",
   "dependencies": ["mqtt"],
   "codeowners": ["Dmitry Menshikov"],
   "requirements": [],
