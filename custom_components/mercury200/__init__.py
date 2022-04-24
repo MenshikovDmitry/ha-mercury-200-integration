@@ -44,7 +44,7 @@ SUPPORTED_COMMANDS = {
 from .mercury_protocol import (verify_checksum, device_id_to_bytes, decode_tarif_data, 
                                 decode_status_data, mercury_request)
 
-
+# TODO: Config validation
 # Schema to validate the configured MQTT topic TO BE DONE
 #CONFIG_SCHEMA = vol.Schema({
 #    vol.Optional(CONF_TOPIC, default=False): mqtt.valid_subscribe_topic
@@ -79,7 +79,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         hass.data[DOMAIN][device_id]['topic'] = topic
 
         if hass.data[DOMAIN].get('power') is None:   
-            # assuming sensors data were not initiated before 
+            # assuming sensors data were not initiated before
+            # TODO: Do I really need the initiation?
             hass.data[DOMAIN][device_id]['power'] = 0
             hass.data[DOMAIN][device_id]['voltage'] = 0
             for z in ZONES:
@@ -98,20 +99,20 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     async def message_received(topic: str, payload: str, qos: int) -> None:
         """A new MQTT message has been received."""
         _LOGGER.info(f"The data recieved: {payload}")
-
         try:
             pl = json.loads(payload)
         except Exception as e:
             _LOGGER.warning(f"Cant parse {payload} with {e}")
             return
         response = pl.get('action', "")
-        if len(response) == 0: return
+        if len(response) == 0:
+            return
         try:
             if not verify_checksum(response):
                 _LOGGER.info(f"Checksum verification fail: '{response}'")
                 return
         except:
-            # can not verify checlsum It might be string command. It is fine
+            # can not verify checksum It might be string command. It is fine
             return
         device_serial = tuple(response[1:4]) # in bytes
         request_id = response[4]
@@ -140,7 +141,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             hass.data[DOMAIN][counter_id]['voltage'] = voltage
             hass.data[DOMAIN][counter_id]['power'] = power
             hass.data[DOMAIN][counter_id]['current'] = current
-            #hass.states.asyncset(f"mercuru200_{counter_id}_power", str(power))
             return
 
     # add listener
@@ -157,7 +157,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         hass.components.mqtt.publish(hass=hass, topic=request_topic, payload='{"action": ' + f"{mqtt_command}" + '}')
 
 
-    # Service to publish a message on MQTT.
+    # Service to publish a message to MQTT.
     @callback
     def submit(call: ServiceCall) -> None:
         """Service to send a message."""
@@ -177,15 +177,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     # Add sensors
     hass.helpers.discovery.load_platform('sensor', DOMAIN, {'device_IDs': device_list}, config)
-
-
-    # get fresh data from devices NOT used now
-    #def update_all():
-    #    for device_id in hass.data[DOMAIN]['devices'].values():
-    #        for command in SUPPORTED_COMMANDS.values():
-    #            publish_request(device_id, command)
-    
-    #hass.data[DOMAIN]['update'] = update_all
 
     # Return boolean to indicate that initialization was successfully.
     return True

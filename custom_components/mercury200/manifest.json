@@ -1,7 +1,7 @@
 {
   "domain": "mercury200",
   "name": "Mercury 200.02 integration.",
-  "documentation": "https://github.com/MenshikovDmitry/ha-mercury-200-integration/",
+  "documentation": "https://github.com/MenshikovDmitry/ha-mercury-200-integration",
   "dependencies": ["mqtt"],
   "codeowners": ["Dmitry Menshikov"],
   "requirements": [],
