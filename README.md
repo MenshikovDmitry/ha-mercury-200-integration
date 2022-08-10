@@ -9,7 +9,7 @@ Custom Home Assistant integration for obtaining the data from Energy meter __Mer
   
 Вдохновлен постом [Smart Home 53](https://zen.yandex.ru/media/id/5f5bea45267c75477b342dab/integraciia-schetchika-merkurii-200-v-home-assistant-chast-1-5f959fae4dcc5c613c00a83a). Расшифровка протокола Mercury200 [в этом репо](https://github.com/mrkrasser/MercuryStats). Спасибо Авторам!
   
-**ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ. Дорогие друзья, автор этого компонента как и Вы - энтузиаст и для меня это - хобби. Компонент распространяется под лицензией MIT. Если У Вас есть вопросы или пожелания, пишите в Issues. Я постараюсь найти время и помочь, но обещать ничего не могу. У меня все работает :-D.**
+**ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ. Дорогие друзья, автор этого компонента как и Вы - энтузиаст и для меня это - хобби. Компонент распространяется под лицензией MIT. Если У Вас есть вопросы или пожелания, пишите в Issues. Я постараюсь помочь, но обещать ничего не могу. У меня все работает :-D.**
 
 ## Содержание
  _В разработке_
@@ -26,25 +26,27 @@ _В разработке_
 
 ## Конфигурация
 
-После установки компонента возможно понадобится перезагрузка. Далее необходимо добавить в файл конфигурации _configuration.yaml_: 
+После установки компонента возможно понадобится перезагрузка. Далее необходимо добавить в файл конфигурации _configuration.yaml_ и перезагрузить HomeAssistant: 
 
 ```yaml
 # Electricity Counter Mercury200.02
 mercury200:
   - type: mercury200.02
     device_serial: "XXXXXXXX" 
-    topic: "zigbee2mqtt/electricity_counter"
+    topic: "zigbee2mqtt/rs485"
 ```
 __Примечания:__  
  - Пока поддерживается только mercury200.02.
  - серийный номер счетчика можно посмотреть на самом счетчике, а так же в ЛК Мосэнергосбыт или другого оператора
- - _'electricity_counter'_ - это _friendly_name_ передающего устройства (модема) в zigbee2mqtt.
+ - _'rs485'_ - это _friendly_name_ передающего устройства (модема) в zigbee2mqtt. Замените, если вы назвали его иначе.
+ - Особенности шины  позволяют опрашивать несколько счетчиков с одного модема. Однако этот режим не протестирован в виду отсутствия оных.
 
 ## Использование
 ### Сущности
 После перезагрузки в Entities появится список сущностей, относящихся к Счетчику:  
   
 <img src="https://raw.githubusercontent.com/MenshikovDmitry/ha-mercury-200-integration/master/images/entities.png">  
+
 Изначально значения сущностей будут недоступны либо будут нулевыми. Это нормально.  
 
 ### Сервисы
@@ -59,7 +61,7 @@ __Примечания:__
  - get_energy: отправляет запрос на получение значений тарифов T1-T4
  - get_status: отправляет запрос на получение текущих показаний сети: Сила тока, напряжение, потребляемая мощность
 
-Получив запрос, электросчетчик отвечаечает байт-строкой, которая транслируется zigbee модемом в zigbee2mqtt. Компонент проводит расшифровку сообщения и обновляет значения сущностей.  
+Получив запрос, электросчетчик отвечаечает байт-строкой, которая транслируется zigbee модемом в zigbee2mqtt. Интеграция проводит расшифровку сообщения и обновляет значения сущностей.  
 Для регулярного обновления значений можно добавить в _automations.yaml_:
 
 ```yaml
@@ -71,7 +73,7 @@ __Примечания:__
   action:
     - service: mercury200.submit_command
       data:
-        device_id: "04025230"
+        device_id: "XXXXXXXX"
         command: get_energy
 
 - alias: Mercury status
@@ -81,11 +83,11 @@ __Примечания:__
   action:
     - service: mercury200.submit_command
       data:
-        device_id: "04025230"
+        device_id: "XXXXXXXX"
         command: get_status
 ```
 ### Карточка
-Ниже мой вариант карточки в yaml для LoveLace. Для этого необходим компонент [multiple entity row](https://github.com/benct/lovelace-multiple-entity-row). В качестве дополнительной информации, а так же для автоматической отправки показаний счетчика в личный кабинет, рекомендую использовать компонент [ЛК "Интер РАО"](https://zzun.app/repo/alryaz-hass-lkcomu-interrao). Автору больше Спасибо!      
+Ниже мой вариант карточки для LoveLace. Для этого необходим компонент [multiple entity row](https://github.com/benct/lovelace-multiple-entity-row). В качестве дополнительной информации, а так же для автоматической отправки показаний счетчика в личный кабинет, рекомендую использовать компонент [ЛК "Интер РАО"](https://zzun.app/repo/alryaz-hass-lkcomu-interrao). Автору больше Спасибо!      
 <img src="https://raw.githubusercontent.com/MenshikovDmitry/ha-mercury-200-integration/master/images/lovelace.png">
 <details>
 <summary> Пример карточки в yaml для Lovelace </summary>
@@ -147,21 +149,14 @@ entities:
 </details>
 
 ### Модем
-**Раздел в Разработке**  
-**!!Данная версия модема пока не протестирована!!**  
+**Раздел в Разработке**
+
+<img src="https://raw.githubusercontent.com/MenshikovDmitry/ha-mercury-200-integration/master/images/modem_photo.jpg">  
+
 Модем необходим для подключения Счетчика электроэнергии к zigbee2mqtt.  
-В папке modem лежит файл Gerber, необходимый для печати плат, а также файл прошивки. Пайка минимальна.
-Наполнение:  
-
-| **Элемент** | **Номинал** | **Ссылка** |
-|-------------|-------------|------------|
-| корпус      | 0603        |        |
-| R1          | 0603        |        |
-| R2          |             |        |
-| R3          |             |        |
-| C1, C2      |             |        |
-| U1          |             |        |
-
+В папке [ZigBee2MQTT <-> RS485](https://github.com/MenshikovDmitry/ha-mercury-200-integration/tree/master/ZigBee2MQTT%20%3C-%3E%20RS485)  лежит файл Gerber, необходимый для печати плат, а также файл прошивки.  
+Подключение:  
+<img src="https://raw.githubusercontent.com/MenshikovDmitry/ha-mercury-200-integration/master/images/connect.png">
 
 ### Помогите разработке
 - [ ] Проверка кофигурации с _homeassistant.helpers.config_validation_  
