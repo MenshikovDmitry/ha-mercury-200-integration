@@ -1,0 +1,12 @@
+Board type: CC2530
+Device type: Router
+Update firmware's timestamp : 2022-07-17
+Status LED: P00, Periodic (every 5 seconds)
+Set default reporting interval (s): 60
+
+Output pins:
+P02: Output 1, UART (Baud rate: 9600, Packet end: None, Byte: 239)
+P03: Output 2, UART (Baud rate: 9600, Packet end: None, Byte: 239)
+
+Input pins:
+P01: Input 1, GPIO, Pull-up
