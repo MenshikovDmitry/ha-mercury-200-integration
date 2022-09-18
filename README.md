@@ -155,8 +155,15 @@ entities:
 
 Модем необходим для подключения Счетчика электроэнергии к zigbee2mqtt.  
 В папке [ZigBee2MQTT <-> RS485](https://github.com/MenshikovDmitry/ha-mercury-200-integration/tree/master/ZigBee2MQTT%20%3C-%3E%20RS485)  лежит файл Gerber, необходимый для печати плат, а также файл прошивки.  
+  
 Подключение:  
+ВНИМАНИЕ!!! Высокое напряжение! Опасно для жизни! Лучше обратиться к профессионалам!  
+
 <img src="https://raw.githubusercontent.com/MenshikovDmitry/ha-mercury-200-integration/master/images/connect.png">
+
+Также сущности T1 - T4 можно добавить а панель Energy для мониторинга расхода электроэнергии.  
+<img src="https://raw.githubusercontent.com/MenshikovDmitry/ha-mercury-200-integration/master/images/energy_panel.png">
+
 
 ### Помогите разработке
 - [ ] Проверка кофигурации с _homeassistant.helpers.config_validation_  
@@ -167,5 +174,5 @@ entities:
 - [ ] Доработка документации
   - [ ] Прошивка
   - [ ] Установка в ручном режиме
-  - [ ] Подключение модема к счетчику электроэнергии
+  - [x] Подключение модема к счетчику электроэнергии
 - [ ] Донат. Вы всегда можете поддержать авторов zigbee2mqtt, PTVO, Home assistant и других контрибьюторов. Потом может и я заслужу) 

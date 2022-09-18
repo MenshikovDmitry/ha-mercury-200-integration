@@ -81,10 +81,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         if hass.data[DOMAIN].get('power') is None:   
             # assuming sensors data were not initiated before
             # TODO: Do I really need the initiation?
-            hass.data[DOMAIN][device_id]['power'] = 0
-            hass.data[DOMAIN][device_id]['voltage'] = 0
+            hass.data[DOMAIN][device_id]['power'] = None
+            hass.data[DOMAIN][device_id]['voltage'] = None
             for z in ZONES:
-                hass.data[DOMAIN][device_id][z] = 0
+                hass.data[DOMAIN][device_id][z] = None
 
     # is not used
     def update_entities():
