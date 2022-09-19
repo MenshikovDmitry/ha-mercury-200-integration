@@ -69,7 +69,7 @@ __Примечания:__
 - alias: Mercury T1 - T3
   trigger:
     - platform: time_pattern
-      minutes: "/57"
+      minutes: "/57" # каждые 57 минут
   action:
     - service: mercury200.submit_command
       data:
@@ -79,7 +79,7 @@ __Примечания:__
 - alias: Mercury status
   trigger:
     - platform: time_pattern
-      minutes: "/5"
+      minutes: "/5" # каждые 5 минут
   action:
     - service: mercury200.submit_command
       data:
@@ -146,7 +146,29 @@ entities:
         name: Debth
 
 ```
-</details>
+</details>  
+
+В силу особенности работы z2m при каждом новом сообщении генерится **retain** сообщение вида  
+
+```yaml
+homeassistant/device_automation/.....
+```
+Такие сообщения содержат конфигурацию. Поскольку модем все время перебрасывается пакетами с RS-485 (байт-строками), то каждое такое сообщение является уникальным и для него генерится конфиг. Они накапливаются в MQTT  и мне не удалось от этого избавиться. Как выход: я использую автоматизацию, которая их сразу же обнуляет. Рекомендую к использованию.
+**!!Необходимо изменить id устройства на Ваше!!!**
+```yaml
+# purge retain MQTT messages from electricity counter
+- id: "purge retain MQTT"
+  alias: puge retain MQTT messages
+  trigger:
+    - platform: mqtt
+      topic: homeassistant/device_automation/0x00124b001b222fb2/#
+  action:
+    - service: mqtt.publish
+      data_template:
+        topic: "{{ trigger.topic }}"
+        payload: ""
+        retain: True
+```
 
 ### Модем
 **Раздел в Разработке**
@@ -171,6 +193,7 @@ entities:
 - [ ] По непонятной мне причине показания счетчиков в карточке обновляются в течение 30 секунд после фактического получения данных (К примеру, после ручного обновления через иконку в карточке).
 - [ ] Кастомная прошивка для модема (сейчас она на базе конфигуратора [PTVO](https://ptvo.info/). За что ему большое Спасибо!)
 - [ ] Поддержка других счетчиков
+- [ ] Избавиться от retain сообщений в MQTT средствами интеграции
 - [ ] Доработка документации
   - [ ] Прошивка
   - [ ] Установка в ручном режиме
