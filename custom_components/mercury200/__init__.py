@@ -1,5 +1,5 @@
 """
-Integration for reading the data from Mercury-200.02 electricity counter
+Integration for reading the data from Mercury-200.02, 04 electricity counter
 through it's build-in RS485 interface. ZigBee -> RS485 modem is needed.
 
 Current integration uses MQTT bus for communication.
@@ -19,7 +19,7 @@ import voluptuous as vol
 import json
 import homeassistant.helpers.config_validation as cv
 
-from homeassistant.components import mqtt
+from homeassistant.components.mqtt.select import ReceiveMessage
 from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.helpers.typing import ConfigType
 
@@ -27,7 +27,7 @@ _LOGGER = logging.getLogger(__name__)
 
 # The domain of your component. Should be equal to the name of your component.
 DOMAIN = "mercury200"
-SUPPORTED_DEVICES = ["mercury200.02"]
+SUPPORTED_DEVICES = ["mercury200.02", "mercury200.04"]
 
 CONF_TOPIC = 'topic'
 CONF_DEVICE = 'device_serial'
@@ -41,7 +41,7 @@ SUPPORTED_COMMANDS = {
     "get_energy": GET_ENERGY
 }
 
-from .mercury_protocol import (verify_checksum, device_id_to_bytes, decode_tarif_data, 
+from .mercury_protocol import (verify_checksum, device_id_to_bytes, decode_tarif_data,
                                 decode_status_data, mercury_request)
 
 # TODO: Config validation
@@ -78,11 +78,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         hass.data[DOMAIN][device_id]['device_id_bytes'] = device_id_bytes
         hass.data[DOMAIN][device_id]['topic'] = topic
 
-        if hass.data[DOMAIN].get('power') is None:   
+        if hass.data[DOMAIN].get('power') is None:
             # assuming sensors data were not initiated before
             # TODO: Do I really need the initiation?
             hass.data[DOMAIN][device_id]['power'] = None
             hass.data[DOMAIN][device_id]['voltage'] = None
+            hass.data[DOMAIN][device_id]['current'] = None
             for z in ZONES:
                 hass.data[DOMAIN][device_id][z] = None
 
@@ -96,7 +97,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     # Listen to a message on MQTT.
     @callback
-    async def message_received(topic: str, payload: str, qos: int) -> None:
+    def message_received(msg: ReceiveMessage) -> None:
+        topic = msg.topic
+        payload = msg.payload
+        qos = msg.qos
         """A new MQTT message has been received."""
         _LOGGER.info(f"The data recieved: {payload}")
         try:
@@ -120,10 +124,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         data = response[5:-2]
 
         counter_id = hass.data[DOMAIN]['devices'].get(device_serial, None)
-        if counter_id is None: 
+        if counter_id is None:
             _LOGGER.warning(f"Message from unregistered device serial: {device_serial}")
             return
-        
+
         if request_id == GET_ENERGY:
             tarif_data = decode_tarif_data(data)
             #_LOGGER.info(f"Processing Tarif data: {data} -> {tarif_data} for {counter_id})
@@ -167,7 +171,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             _LOGGER.error(f"Must contain keys 'device_id' and 'command'")
             return
         command_id = SUPPORTED_COMMANDS.get(command, None)
-        if command_id is None: 
+        if command_id is None:
             _LOGGER.error(f"{command} is not supported by platform. Must be one of {SUPPORTED_COMMANDS.keys()}")
         publish_request(request_device_id, command_id)
 

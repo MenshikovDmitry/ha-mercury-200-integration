@@ -10,7 +10,7 @@ from homeassistant.components.sensor import (
 #    RestoreSensor, # not in master yet
     SensorStateClass,
 )
-from homeassistant.const import ENERGY_KILO_WATT_HOUR, POWER_WATT, ELECTRIC_POTENTIAL_VOLT
+from homeassistant.const import ENERGY_KILO_WATT_HOUR, POWER_WATT, ELECTRIC_POTENTIAL_VOLT, ELECTRIC_CURRENT_AMPERE
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from . import DOMAIN, ZONES
 
@@ -24,6 +24,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info)
     for counter_id in device_list:
         entities.append(PowerSensor(device_id=counter_id))
         entities.append(VoltageSensor(device_id=counter_id))
+        entities.append(CurrentSensor(device_id=counter_id))
 
         for tar_zone in ZONES: # mercury200.02 support 4 tarif zones
             entities.append(
@@ -104,3 +105,20 @@ class VoltageSensor(SensorEntity):
         This is the only method that should fetch new data for Home Assistant.
         """
         self._attr_native_value = self.hass.data[DOMAIN][self.device_id]['voltage']
+
+class CurrentSensor(SensorEntity):
+    """Current ampere"""
+    _attr_native_unit_of_measurement = ELECTRIC_CURRENT_AMPERE
+    _attr_device_class = SensorDeviceClass.CURRENT
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, device_id:str):
+        self.device_id = device_id
+        self._attr_name = f"mercury200 {self.device_id} current"
+        super().__init__()
+
+    def update(self) -> None:
+        """Fetch new state data for the sensor.
+        This is the only method that should fetch new data for Home Assistant.
+        """
+        self._attr_native_value = self.hass.data[DOMAIN][self.device_id]['current']

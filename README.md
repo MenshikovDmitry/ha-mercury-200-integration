@@ -1,7 +1,11 @@
-# Home Assistant (ZigBee) <-> Меркурий200.02
+# Home Assistant (ZigBee) <-> Меркурий200
 !! Сам компонент, как и оформление репозитория находится в разработке !!  
 
 Custom Home Assistant integration for obtaining the data from Energy meter __Mercury 200.02__. This Integration is dedicated for Russia and CIS users, as I believe, no one outside uses this type of meters. However, if you need documentation in English, please, let me know in issues.  
+
+## Поддерживаемые модели Электросчетчиков:  
+ - Меркурий 200.02 
+ - Меркурий 200.04
 
 Бытовые счетчики электроэнергии __Меркурий 200.02__ обладают цифровым интерфейсом на базе __RS-485__, который позволяет удаленно считывать показания расхода электроэнергии. 
 Данная интеграция позволяет считывать показания и отображать их в Home Assistant через [zigbee2mqtt](https://www.zigbee2mqtt.io). Для подключения электросчетчика к Zigbee сети необходим модем. О нем - ниже.   
