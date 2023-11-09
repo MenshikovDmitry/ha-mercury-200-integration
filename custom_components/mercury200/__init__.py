@@ -109,6 +109,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             _LOGGER.warning(f"Cant parse {payload} with {e}")
             return
         response = pl.get('action', "")
+        if response is None:
+            return  
         if len(response) == 0:
             return
         try:
